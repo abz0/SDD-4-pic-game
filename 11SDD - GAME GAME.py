@@ -44,24 +44,28 @@ gifs = ["concern.gif", "security.gif", "coffee.gif", "piano.gif", "hold.gif",
 
 used_pics = [] #stores the used items in the gameplay from the pics array by index
 
-#chooses an index based on the pics array
-def chooser(level):
-    #picks an index
+#returns a random index from the pics array based on the game level
+def get_index_from_pics(level):
     if level <= 5:
-        num = random.randint(0, 9)    #gets an easy level
+        index = random.randint(0, 9)    #gets an easy level
     else:
-        num = random.randint(10, 19)    #gets a hard level
+        index = random.randint(10, 19)    #gets a hard level
+
+    return index
+
+#gets a random pics array index based on the game level
+def get_pic_index(level):
+    #picks an index
+    index = get_index_from_pics(level)
 
     #gets another index if the index is already used
-    while num in used_pics:
-        if level <= 5:
-            num = random.randint(0, 9)
-        else:
-            num = random.randint(10, 19)
+    while index in used_pics:
+        index = get_index_from_pics(level)
 
-    used_pics.append(num)        
+    #adds an new index to the used_pics array
+    used_pics.append(index)        
         
-    return num
+    return index
 
 #returns the number of points the player made based on their guess
 def pointer(level, guess, tempts, tally):
@@ -173,7 +177,7 @@ def press(button):
     global incorrect_count
     global pics
     global hint
-    global num
+    global pic_index #pic index used for the gameplay
 
     #when player start or restart game
     if button == "Play":
@@ -182,13 +186,13 @@ def press(button):
         current_points = 0
         current_attempts = 5
         incorrect_count = 0
-        num = chooser(current_level)
+        pic_index = get_pic_index(current_level)
 
         #sets game gui
         app.setLabel("heading", "Level " + str(current_level))
         app.setLabel("message", "Guess a word from the pictures")
 
-        app.setImage("pic", gifs[num])
+        app.setImage("pic", gifs[pic_index])
 
         app.hideLabel("hint")
         
@@ -212,7 +216,7 @@ def press(button):
             app.setFocus("word") #refocuses on the entry when the word entered is empty
         else:
             #when the player guesses correctly
-            if user.lower() == pics[num]:
+            if user.lower() == pics[pic_index]:
                 current_points = pointer(current_level, 1, current_attempts, current_points) #updates points
                 current_attempts = 5 #resets the current available attempts
 
@@ -222,12 +226,12 @@ def press(button):
                 #increases the level
                 current_level += 1
 
-                num = chooser(current_level)
+                pic_index = get_pic_index(current_level)
 
                 #next level of the game gui
                 app.setLabel("heading", "Level " + str(current_level))
                 
-                app.setImage("pic", gifs[num])
+                app.setImage("pic", gifs[pic_index])
 
                 app.hideLabel("hint")
 
@@ -253,11 +257,11 @@ def press(button):
             #displays the hint when the current available attempts are 3 and below
             if current_attempts == 3:                
                 app.showLabel("hint")
-                app.setLabel("hint", "Hint: " + hint[0][num])
+                app.setLabel("hint", "Hint: " + hint[0][pic_index])
             elif current_attempts == 2:
-                app.setLabel("hint", "Hint: " + hint[1][num])
+                app.setLabel("hint", "Hint: " + hint[1][pic_index])
             else:
-                app.setLabel("hint", "Hint: " + hint[2][num])
+                app.setLabel("hint", "Hint: " + hint[2][pic_index])
 
             #when the player reaches the end of the game 
             if current_level == 11 or current_attempts == 0:
