@@ -19,39 +19,53 @@ appJar.'''
 '''
 
 ### WORK ###
-level = 0
-points = 0
-attempts = 5
-wrongs = 0
+current_level = 0 #current level of the game
+current_points = 0 #current number of points made during gameplay
+current_attempts = 5 #current number of available attempts to have
+incorrect_count = 0 #counts the number of incorrect guesses during gameplay
 
-pics = ["worry", "security", "coffee", "piano", "hold", "drop", "pack",
-        "misty", "two", "factory", "article", "defeat", "storage", "hall",
-        "solution", "chilly", "tasty", "ready", "afraid", "adoption"]
+#pictures that will be used in the gameplay
+pics = [
+        #easy levels
+        "worry", "security", "coffee", "piano", "hold", "drop", "pack", "misty",
+        "two", "factory",
+
+        #hard levels
+        "article", "defeat", "storage", "hall", "solution", "chilly", "tasty",
+        "ready", "afraid", "adoption"
+]
+
+#name of the actual pictures that will be imported in the gameplay
 gifs = ["concern.gif", "security.gif", "coffee.gif", "piano.gif", "hold.gif",
         "drop.gif", "pack.gif", "misty.gif", "two.gif", "factory.gif",
         "article.gif", "defeat.gif", "storage.gif", "hall.gif", "solution.gif",
         "chilly.gif", "tasty.gif", "ready.gif", "afraid.gif", "adoption.gif",
         "titlepage.gif", "goodending.gif", "badending.gif"]
-used = []
 
+used_pics = [] #stores the used items in the gameplay from the pics array by index
+
+#chooses an index based on the pics array
 def chooser(level):
+    #picks an index
     if level <= 5:
-        num = random.randint(0, 9)    # level easy
+        num = random.randint(0, 9)    #gets an easy level
     else:
-        num = random.randint(10, 19)    # level hard
+        num = random.randint(10, 19)    #gets a hard level
 
-    while num in used:
+    #gets another index if the index is already used
+    while num in used_pics:
         if level <= 5:
             num = random.randint(0, 9)
         else:
             num = random.randint(10, 19)
 
-    used.append(num)        
+    used_pics.append(num)        
         
     return num
 
+#returns the number of points the player made based on their guess
 def pointer(level, guess, tempts, tally):
-    if guess == 1:    # correct answers
+    if guess == 1:    #if the guess is correct answer (or 1)
         if level <= 5:
             if tempts == 5:
                 tally += 5
@@ -75,7 +89,7 @@ def pointer(level, guess, tempts, tally):
             elif tempts == 1:
                 tally += 1
 
-    else:             # incorrect answers
+    else:             #if the guess is incorrect answer (or otherwise)
         if tally == 0:
             tally = 0
         else:
@@ -83,21 +97,25 @@ def pointer(level, guess, tempts, tally):
     
     return tally
 
+#creates a hint
 def hinter():
-    space = []
-    space2 = []
-    space3 = []
+    space = [] #stores the first hint
+    space2 = [] #stores the second hint
+    space3 = [] #stores the third hint
     
     clue = ""
 
     for i in range(len(pics)):
-        clue = pics[i][0] + " _" * (len(pics[i]) - 1)
+        #creates the first hint
+        clue = pics[i][0] + " _" * (len(pics[i]) - 1) #shows only the first letter where the rest is blank
         space.append(clue)
+
+        #creates the second hint
+        clue2 = pics[i][0] #displays the first letter
         
-        clue2 = pics[i][0]
-        
-        letter = random.randint(1, (len(pics[i]) - 1))
-        
+        letter = random.randint(1, (len(pics[i]) - 1)) #gets a random letter by index
+
+        #adds the blank spaces for hint 2
         for x in range(len(pics[i])):
             if len(pics[i]) < 4:
                 clue2 = space[i]
@@ -110,8 +128,10 @@ def hinter():
 
         space2.append(clue2)
 
-        clue3 = pics[i][0]
+        #creates the third hint
+        clue3 = pics[i][0] #displays the first letter
 
+        #get second and third letter
         letter2 = random.randint(1, (len(pics[i]) - 1))
         while letter2 == letter:
             letter2 = random.randint(1, (len(pics[i]) - 1))
@@ -126,6 +146,7 @@ def hinter():
                 break
         breaker = 0
 
+        #add blank spaces for hint 3
         for x in range(len(pics[i])):
             if len(pics[i]) < 5:
                 clue3 = space2[i]
@@ -144,24 +165,27 @@ def hinter():
     
     return space, space2, space3
 
+#behaviour of the buttons
 def press(button):
-    global level
-    global points
-    global attempts
-    global wrongs
+    global current_level
+    global current_points
+    global current_attempts
+    global incorrect_count
     global pics
     global hint
     global num
-    
-    if button == "Play":     # start/restart
+
+    #when player start or restart game
+    if button == "Play":
         hint = hinter()
-        level = 1
-        points = 0
-        attempts = 5
-        wrongs = 0
-        num = chooser(level)
-        
-        app.setLabel("heading", "Level " + str(level))
+        current_level = 1
+        current_points = 0
+        current_attempts = 5
+        incorrect_count = 0
+        num = chooser(current_level)
+
+        #sets game gui
+        app.setLabel("heading", "Level " + str(current_level))
         app.setLabel("message", "Guess a word from the pictures")
 
         app.setImage("pic", gifs[num])
@@ -178,25 +202,30 @@ def press(button):
         app.disableButton("Skip")
 
         app.showLabel("pointsattempts")
-        app.setLabel("pointsattempts", "Points: " + str(points) + "           " + "Attempts: " + str(attempts))
-        
-    elif button == "Guess":     # user arena
+        app.setLabel("pointsattempts", "Points: " + str(current_points) + "           " + "Attempts: " + str(current_attempts))
+
+    #when players guess a word
+    elif button == "Guess":
         user = app.getEntry("word")
         
-        if user == "":
-            app.setFocus("word")
+        if user == "": 
+            app.setFocus("word") #refocuses on the entry when the word entered is empty
         else:
+            #when the player guesses correctly
             if user.lower() == pics[num]:
-                points = pointer(level, 1, attempts, points)
-                attempts = 5
-                
-                app.infoBox("answer", "CORRECT!")
-                
-                level += 1
+                current_points = pointer(current_level, 1, current_attempts, current_points) #updates points
+                current_attempts = 5 #resets the current available attempts
 
-                num = chooser(level)
-                
-                app.setLabel("heading", "Level " + str(level))
+                #display an info box for correct guesses
+                app.infoBox("answer", "CORRECT!")
+
+                #increases the level
+                current_level += 1
+
+                num = chooser(current_level)
+
+                #next level of the game gui
+                app.setLabel("heading", "Level " + str(current_level))
                 
                 app.setImage("pic", gifs[num])
 
@@ -204,40 +233,47 @@ def press(button):
 
                 app.clearEntry("word")
                 
-                app.setLabel("pointsattempts", "Points: " + str(points) + "        " + "Attempts: " + str(attempts))
-                
+                app.setLabel("pointsattempts", "Points: " + str(current_points) + "        " + "Attempts: " + str(current_attempts))
+
+            #when the player guesses incorrectly
             else:
+                #display an info box for incorrect guesses
                 app.infoBox("answer", "INCORRECT.")
 
-                points = pointer(level, 0, attempts, points)
-                attempts -= 1
-                wrongs += 1
+                #perform consequences of incorrect guesses
+                current_points = pointer(current_level, 0, current_attempts, current_points)
+                current_attempts -= 1
+                incorrect_count += 1
 
+                #updates the game gui after incorrect guesses
                 app.clearEntry("word")
                 
-                app.setLabel("pointsattempts", "Points: " + str(points) + "        " + "Attempts: " + str(attempts))
+                app.setLabel("pointsattempts", "Points: " + str(current_points) + "        " + "Attempts: " + str(current_attempts))
 
-            if attempts == 3:                
+            #displays the hint when the current available attempts are 3 and below
+            if current_attempts == 3:                
                 app.showLabel("hint")
                 app.setLabel("hint", "Hint: " + hint[0][num])
-            elif attempts == 2:
+            elif current_attempts == 2:
                 app.setLabel("hint", "Hint: " + hint[1][num])
             else:
                 app.setLabel("hint", "Hint: " + hint[2][num])
-                
-            if level == 11 or attempts == 0:    # end game 
-                used.clear()
 
-                app.setLabel("message", "You got " + str(points) + "/70 points with " + str(wrongs) + "/40 mistakes.")
+            #when the player reaches the end of the game 
+            if current_level == 11 or current_attempts == 0:
+                used_pics.clear() #clears the used_pics array
+
+                #displays the end game gui
+                app.setLabel("message", "You got " + str(current_points) + "/70 points with " + str(incorrect_count ) + "/40 mistakes.")
 
                 app.showLabel("hint")
-                if wrongs > 30:
+                if incorrect_count > 30:
                     app.setLabel("hint", "(Pretty bad with so much incorrects.)")
-                elif wrongs in range(11,30):
+                elif incorrect_count in range(11,30):
                     app.setLabel("hint", "(Good job.)")
-                elif wrongs in range(6,10):
+                elif incorrect_count in range(6,10):
                     app.setLabel("hint", "(Closer to perfect.)")
-                elif wrongs in range(1,5):
+                elif incorrect_count in range(1,5):
                     app.setLabel("hint", "(Nearly aced it!)")
                 else:
                     app.setLabel("hint", "(WOW! That's a perfect score!)")
@@ -252,7 +288,7 @@ def press(button):
                 app.showButton("Exit")
                 app.setButton("Play", "Play again?")
 
-                if level == 11:
+                if current_level == 11:
                     app.setLabel("heading", "You made it to the finish line!")
                     app.setImage("pic", "goodending.gif")
                     app.infoBox("ending", "!!! YOU GOT VICTORY !!!")
@@ -260,14 +296,17 @@ def press(button):
                     app.setLabel("heading", "Too bad. You ran out of attempts.")
                     app.setImage("pic", "badending.gif")
                     app.infoBox("ending", "YOU FAIL")
-                
+
+    #when player wants to exit the game
     elif button == "Exit":
         app.stop()
-        
-app = gui("4 pics 1 word", "615x615")
-app.setFont(12)
-app.setImageLocation("gif")
 
+#sets up the gui app for the game
+app = gui("4 pics 1 word", "615x615") #size and title of the app
+app.setFont(12) #font size
+app.setImageLocation("gif") #locates the image folder
+
+#adds the content of the gui
 app.addLabel("heading", "Welcome to the 4 pics 1 word game!")
 app.addLabel("message", """This game has 10 levels where you cannot skip.
 You will be given 5 attempts if you made a mistake.""")
@@ -284,7 +323,8 @@ app.addButtons(["Guess", "Skip"], press)
 app.hideButton("Guess")
 app.hideButton("Skip")
 
-app.addLabel("pointsattempts", "Points: " + str(points) + "           " + "Attempts: " + str(attempts))
+app.addLabel("pointsattempts", "Points: " + str(current_points) + "           " + "Attempts: " + str(current_attempts))
 app.hideLabel("pointsattempts")
 
+#executes the games
 app.go()
