@@ -67,39 +67,36 @@ def get_pic_index(level):
         
     return index
 
-#returns the number of points the player made based on their guess
-def pointer(level, guess, tempts, tally):
-    if guess == 1:    #if the guess is correct answer (or 1)
-        if level <= 5:
-            if tempts == 5:
-                tally += 5
-            elif tempts == 4:
-                tally += 4
-            elif tempts == 3:
-                tally += 3
-            elif tempts == 2:
-                tally += 2
-            elif tempts == 1:
-                tally += 1
-        else:
-            if tempts == 5:
-                tally += 9
-            elif tempts == 4:
-                tally += 7
-            elif tempts == 3:
-                tally += 5
-            elif tempts == 2:
-                tally += 3
-            elif tempts == 1:
-                tally += 1
+#manipulate the current points
+def manipulate_points(correct_guess: bool,
+                      level: int,
+                      num_of_attempts: int,
+                      points: int = 0
+                      ):
+    #calculate the additional points when on the hard levels
+    additional_points = 0
+    if level > 5:
+        additional_points = num_of_attempts - 1
+
+    #manipulates the points
+    if correct_guess:    #if the guess is correct answer (or 1)
+        match num_of_attempts:
+            case 5:
+                points += 5 + additional_points
+            case 4:
+                points += 4 + additional_points
+            case 3:
+                points += 3 + additional_points
+            case 2:
+                points += 2 + additional_points
+            case 1:
+                points += 1 + additional_points
 
     else:             #if the guess is incorrect answer (or otherwise)
-        if tally == 0:
-            tally = 0
-        else:
-            tally -= 1
+        if points > 0:
+            points -= 1
     
-    return tally
+    return points
 
 #creates a hint
 def hinter():
@@ -217,7 +214,11 @@ def press(button):
         else:
             #when the player guesses correctly
             if user.lower() == pics[pic_index]:
-                current_points = pointer(current_level, 1, current_attempts, current_points) #updates points
+                current_points = manipulate_points(True,
+                                                   current_level,
+                                                   current_attempts,
+                                                   current_points
+                                                   )
                 current_attempts = 5 #resets the current available attempts
 
                 #display an info box for correct guesses
@@ -245,7 +246,11 @@ def press(button):
                 app.infoBox("answer", "INCORRECT.")
 
                 #perform consequences of incorrect guesses
-                current_points = pointer(current_level, 0, current_attempts, current_points)
+                current_points = manipulate_points(False,
+                                                   current_level,
+                                                   current_attempts,
+                                                   current_points
+                                                   )
                 current_attempts -= 1
                 incorrect_count += 1
 
