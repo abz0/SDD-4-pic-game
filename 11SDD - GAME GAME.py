@@ -45,7 +45,7 @@ gifs = ["concern.gif", "security.gif", "coffee.gif", "piano.gif", "hold.gif",
 used_pics = [] #stores the used items in the gameplay from the pics array by index
 
 #returns a random index from the pics array based on the game level
-def get_index_from_pics(level):
+def get_index_from_pics(level: int):
     if level <= 5:
         index = random.randint(0, 9)    #gets an easy level
     else:
@@ -54,7 +54,7 @@ def get_index_from_pics(level):
     return index
 
 #gets a random pics array index based on the game level
-def get_pic_index(level):
+def get_pic_index(level: int):
     #picks an index
     index = get_index_from_pics(level)
 
