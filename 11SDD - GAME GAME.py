@@ -98,73 +98,39 @@ def manipulate_points(correct_guess: bool,
     
     return points
 
-#creates a hint
-def hinter():
-    space = [] #stores the first hint
-    space2 = [] #stores the second hint
-    space3 = [] #stores the third hint
+#creates the first hint
+def create_first_hint(word: str):
+    hint = word[0] + " _" * (len(word) - 1)
+
+    return hint
+
+#checks if the next hint could be made
+def valid_next_hint(hint):
+    num_of_blank = hint.count("_")
+
+    return num_of_blank > 1
     
-    clue = ""
+#creates the next hints after the first hint
+def create_next_hint(word: str, old_hint: str):
+    #returns old hint if making the next hint is invalid
+    if not valid_next_hint(old_hint):
+        return old_hint
 
-    for i in range(len(pics)):
-        #creates the first hint
-        clue = pics[i][0] + " _" * (len(pics[i]) - 1) #shows only the first letter where the rest is blank
-        space.append(clue)
+    #gets the index that will replace the blank space
+    hint_length = len(old_hint)
 
-        #creates the second hint
-        clue2 = pics[i][0] #displays the first letter
-        
-        letter = random.randint(1, (len(pics[i]) - 1)) #gets a random letter by index
+    replace_index = random.randint(2, hint_length - 1)
+    while old_hint[replace_index] != '_':
+        replace_index = random.randint(2, hint_length - 1)
 
-        #adds the blank spaces for hint 2
-        for x in range(len(pics[i])):
-            if len(pics[i]) < 4:
-                clue2 = space[i]
-            elif x == 0:
-                pass
-            elif x == letter:
-                clue2 += " " + pics[i][letter]
-            else:
-                clue2 += " _"
+    #get the letter of the word belonging to the hint
+    letter_index = int(replace_index / 2)
+    letter = word[letter_index]
 
-        space2.append(clue2)
+    #creates the next hint
+    next_hint = old_hint[:replace_index] + letter + old_hint[replace_index + 1:]
 
-        #creates the third hint
-        clue3 = pics[i][0] #displays the first letter
-
-        #get second and third letter
-        letter2 = random.randint(1, (len(pics[i]) - 1))
-        while letter2 == letter:
-            letter2 = random.randint(1, (len(pics[i]) - 1))
-
-        letter3 = random.randint(1, (len(pics[i]) - 1))
-        breaker = 0    # prevent repeat of len(two)
-        while letter3 == letter or letter3 == letter2:
-            letter3 = random.randint(1, (len(pics[i]) - 1))
-            breaker += 1
-
-            if breaker == 5:
-                break
-        breaker = 0
-
-        #add blank spaces for hint 3
-        for x in range(len(pics[i])):
-            if len(pics[i]) < 5:
-                clue3 = space2[i]
-            elif x == 0:
-                pass
-            elif x == letter:
-                clue3 += " " + pics[i][letter]
-            elif x == letter2:
-                clue3 += " " + pics[i][letter2]
-            elif x == letter3 and len(pics[i]) > 5:
-                clue3 += " " + pics[i][letter3]
-            else:
-                clue3 += " _"
-                    
-        space3.append(clue3)
-    
-    return space, space2, space3
+    return next_hint
 
 #behaviour of the buttons
 def press(button):
@@ -178,7 +144,6 @@ def press(button):
 
     #when player start or restart game
     if button == "Play":
-        hint = hinter()
         current_level = 1
         current_points = 0
         current_attempts = 5
@@ -260,13 +225,20 @@ def press(button):
                 app.setLabel("pointsattempts", "Points: " + str(current_points) + "        " + "Attempts: " + str(current_attempts))
 
             #displays the hint when the current available attempts are 3 and below
-            if current_attempts == 3:                
+            if current_attempts == 3:
+                hint = create_first_hint(pics[pic_index])
+                
                 app.showLabel("hint")
-                app.setLabel("hint", "Hint: " + hint[0][pic_index])
+                app.setLabel("hint", "Hint: " + hint)
             elif current_attempts == 2:
-                app.setLabel("hint", "Hint: " + hint[1][pic_index])
-            else:
-                app.setLabel("hint", "Hint: " + hint[2][pic_index])
+                hint = create_next_hint(pics[pic_index], hint)
+
+                app.setLabel("hint", "Hint: " + hint)
+            elif current_attempts == 1:
+                for i in range(2):
+                    hint = create_next_hint(pics[pic_index], hint)
+                
+                app.setLabel("hint", "Hint: " + hint)
 
             #when the player reaches the end of the game 
             if current_level == 11 or current_attempts == 0:
