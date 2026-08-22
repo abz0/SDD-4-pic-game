@@ -25,7 +25,7 @@ current_attempts = 5 #current number of available attempts to have
 incorrect_count = 0 #counts the number of incorrect guesses during gameplay
 
 #pictures that will be used in the gameplay
-pics = [
+word_list = [
         #easy levels
         "worry", "security", "coffee", "piano", "hold", "drop", "pack", "misty",
         "two", "factory",
@@ -36,16 +36,23 @@ pics = [
 ]
 
 #name of the actual pictures that will be imported in the gameplay
-gifs = ["concern.gif", "security.gif", "coffee.gif", "piano.gif", "hold.gif",
+gif_list = [
+        #easy levels
+        "concern.gif", "security.gif", "coffee.gif", "piano.gif", "hold.gif",
         "drop.gif", "pack.gif", "misty.gif", "two.gif", "factory.gif",
+
+        #hard levels
         "article.gif", "defeat.gif", "storage.gif", "hall.gif", "solution.gif",
         "chilly.gif", "tasty.gif", "ready.gif", "afraid.gif", "adoption.gif",
-        "titlepage.gif", "goodending.gif", "badending.gif"]
 
-used_pics = [] #stores the used items in the gameplay from the pics array by index
+        #other
+        "titlepage.gif", "goodending.gif", "badending.gif"
+]
 
-#returns a random index from the pics array based on the game level
-def get_index_from_pics(level: int):
+used_pics = [] #stores the index of the gif and word items to create the picture in the gameplay
+
+#returns a random index from the word_list array based on the game level
+def get_index_for_picture(level: int):
     if level <= 5:
         index = random.randint(0, 9)    #gets an easy level
     else:
@@ -53,14 +60,14 @@ def get_index_from_pics(level: int):
 
     return index
 
-#gets a random pics array index based on the game level
+#gets a random word_list array index based on the game level
 def get_pic_index(level: int):
     #picks an index
-    index = get_index_from_pics(level)
+    index = get_index_for_picture(level)
 
     #gets another index if the index is already used
     while index in used_pics:
-        index = get_index_from_pics(level)
+        index = get_index_for_picture(level)
 
     #adds an new index to the used_pics array
     used_pics.append(index)        
@@ -138,7 +145,7 @@ def press(button):
     global current_points
     global current_attempts
     global incorrect_count
-    global pics
+    global word_list
     global hint
     global pic_index #pic index used for the gameplay
 
@@ -154,7 +161,7 @@ def press(button):
         app.setLabel("heading", "Level " + str(current_level))
         app.setLabel("message", "Guess a word from the pictures")
 
-        app.setImage("pic", gifs[pic_index])
+        app.setImage("pic", gif_list[pic_index])
 
         app.hideLabel("hint")
         
@@ -178,7 +185,7 @@ def press(button):
             app.setFocus("word") #refocuses on the entry when the word entered is empty
         else:
             #when the player guesses correctly
-            if user.lower() == pics[pic_index]:
+            if user.lower() == word_list[pic_index]:
                 current_points = manipulate_points(True,
                                                    current_level,
                                                    current_attempts,
@@ -197,7 +204,7 @@ def press(button):
                 #next level of the game gui
                 app.setLabel("heading", "Level " + str(current_level))
                 
-                app.setImage("pic", gifs[pic_index])
+                app.setImage("pic", gif_list[pic_index])
 
                 app.hideLabel("hint")
 
@@ -226,17 +233,17 @@ def press(button):
 
             #displays the hint when the current available attempts are 3 and below
             if current_attempts == 3:
-                hint = create_first_hint(pics[pic_index])
+                hint = create_first_hint(word_list[pic_index])
                 
                 app.showLabel("hint")
                 app.setLabel("hint", "Hint: " + hint)
             elif current_attempts == 2:
-                hint = create_next_hint(pics[pic_index], hint)
+                hint = create_next_hint(word_list[pic_index], hint)
 
                 app.setLabel("hint", "Hint: " + hint)
             elif current_attempts == 1:
                 for i in range(2):
-                    hint = create_next_hint(pics[pic_index], hint)
+                    hint = create_next_hint(word_list[pic_index], hint)
                 
                 app.setLabel("hint", "Hint: " + hint)
 
