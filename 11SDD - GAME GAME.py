@@ -188,21 +188,6 @@ def show_end_of_game_gui(level: int,
                          ):
     app.setLabel("message", "You got " + str(points) + "/70 points with " + str(num_of_incorrects) + "/40 mistakes.")
 
-    app.hideLabel("hint")
-    '''
-    app.showLabel("hint")
-    if num_of_incorrects > 30:
-        app.setLabel("hint", "(Pretty bad with so much incorrects.)")
-    elif num_of_incorrects in range(11,30):
-        app.setLabel("hint", "(Good job.)")
-    elif num_of_incorrects in range(6,10):
-        app.setLabel("hint", "(Closer to perfect.)")
-    elif num_of_incorrects in range(1,5):
-        app.setLabel("hint", "(Nearly aced it!)")
-    else:
-        app.setLabel("hint", "(WOW! That's a perfect score!)")
-    '''
-
     app.hideEntry("word")
 
     app.hideLabel("pointsattempts")
@@ -215,11 +200,27 @@ def show_end_of_game_gui(level: int,
 
     if level >= 11:
         app.setLabel("heading", "You made it to the finish line!")
+
+        app.showLabel("hint")
+        if num_of_incorrects > 30:
+            app.setLabel("hint", "(Pretty bad with so much incorrects.)")
+        elif num_of_incorrects in range(11,30):
+            app.setLabel("hint", "(Good job.)")
+        elif num_of_incorrects in range(6,10):
+            app.setLabel("hint", "(Closer to perfect.)")
+        elif num_of_incorrects in range(1,5):
+            app.setLabel("hint", "(Nearly aced it!)")
+        else:
+            app.setLabel("hint", "(WOW! That's a perfect score!)")
+
         app.setImage("pic", "goodending.gif")
+
         app.infoBox("ending", "!!! YOU GOT VICTORY !!!")
     else:
         app.setLabel("heading", "Too bad. You ran out of attempts.")
+        app.hideLabel("hint")
         app.setImage("pic", "badending.gif")
+
         app.infoBox("ending", "YOU FAIL")
 
 #behaviour of the buttons
